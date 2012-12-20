@@ -31,6 +31,20 @@ function leftmostFirstVersion(sexp){
 
 
 // leftmost + letcc
+function leftmostContinuation(list){
+	var continuation = function(x) {return 'cc'+x}
+	var leftmost = function(sexp) {
+		if (isEmpty(sexp)) return EMPTY
+		else if (isAtom(car(sexp))) return continuation(car(sexp))
+		else {
+			var lmcar = leftmost(car(sexp))
+			if (!isEmpty(lmcar)) 
+				return lmcar
+			else return leftmost(cdr(sexp))
+		}
+	}
+	return leftmost(list)
+}
 
 
 

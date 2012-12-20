@@ -23,6 +23,13 @@ YAHOO.SFJ.test.oTestLeftmostFirst = new YAHOO.tool.TestCase({
 	}
 });
 
+YAHOO.SFJ.test.oTestLeftmostContinuation = new YAHOO.tool.TestCase({
+	name : "TestLeftmostContinuation",
+	testLeftmostContinuation : function() {
+		var input = ArrayToList([[[],1],[[],[1,2]],2,3,2])
+		Assert.areEqual('cc1',leftmostContinuation(input))
+	}
+});
 
 YAHOO.util.Event
 		.onDOMReady(function() {
@@ -34,6 +41,8 @@ YAHOO.util.Event
 					.add(YAHOO.SFJ.test.oTestScramble);
 			YAHOO.SFJ.test.SFJ_TestSuite
 					.add(YAHOO.SFJ.test.oTestLeftmostFirst);
+			YAHOO.SFJ.test.SFJ_TestSuite
+					.add(YAHOO.SFJ.test.oTestLeftmostContinuation);
 
 			var logger = new YAHOO.tool.TestLogger("testLogger_SFJ");
 			logger.hideCategory("info");
