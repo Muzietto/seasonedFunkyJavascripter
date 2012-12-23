@@ -7,13 +7,22 @@ function scramble(aTup) {  // tuple = list of numbers
 		else return cons(
 			pick(car(tup),cons(car(tup),revpre)),
 			scramble_b(cdr(tup), cons(car(tup),revpre))
-		)
+		);
 	}
-	return scramble_b(aTup,EMPTY)
+	return scramble_b(aTup,EMPTY);
 }
 // chapter 12
-// union con letrec === innerfunction
+// union plus letrec === innerfunction
 
+// chapter 13
+function intersectallUsingLetrec (l_set){
+	function A(l_set){
+		if (isEmpty(cdr(l_set))) return car(l_set);
+		else return intersection(car(l_set),A(cdr(l_set)));
+	}
+	if (isEmpty(l_set)) return EMPTY;
+	else return A(l_set);
+}
 
 // chapter 14
 // leftmost (first version)
@@ -21,8 +30,9 @@ function leftmostFirstVersion(sexp){
 	if (isEmpty(sexp)) return EMPTY
 	else if (isAtom(car(sexp))) return car(sexp)
 	else {
-		if (!isEmpty(leftmostFirstVersion(car(sexp)))) 
-			return leftmostFirstVersion(car(sexp))
+		var lmcar = leftmostFirstVersion(car(sexp))
+		if (!isEmpty(lmcar)) 
+			return lmcar
 		else return leftmostFirstVersion(cdr(sexp))
 	}
 }
@@ -32,26 +42,91 @@ function leftmostFirstVersion(sexp){
 
 // leftmost + letcc
 function leftmostContinuation(list){
-	var continuation = function(x) {return 'cc'+x}
-	var leftmost = function(sexp) {
+	var continuation = function(x) {return x}
+	var leftmost = function(sexp, cc) {
 		if (isEmpty(sexp)) return EMPTY
-		else if (isAtom(car(sexp))) return continuation(car(sexp))
+		else if (isAtom(car(sexp))) cc('ccc'+car(sexp))
 		else {
-			var lmcar = leftmost(car(sexp))
+			var lmcar = leftmost(car(sexp),cc)
 			if (!isEmpty(lmcar)) 
-				return lmcar
-			else return leftmost(cdr(sexp))
+				leftmost(lmcar,cc)
+			else leftmost(cdr(sexp),cc)
 		}
 	}
-	return leftmost(list)
+	return leftmost(list, function(x) {return x})
 }
 
+// rember1 (pag. 67)
+function rember1(a, list){
+	if (isEmpty(list)) return EMPTY
+	else if (isAtom(car(list))) {
+		if (car(list)===a) return rember1(a,cdr(list))
+		else return cons(car(list),rember1(a,cdr(list)))
+	}
+	else {
+		var rema = rember1(a,car(list))
+		if (eqlist(rema,car(list))) return cons(car(list),rember1(a,cdr(list)))
+		else return cons(rema,cdr(list))
+	}
+}
 
+// rember1 + continuation
+function rember1cc(a, list){
+	var cc = function(x) {return x}
+	
+	if (isEmpty(list)) return continuation('no')
+	else if (isAtom(car(list))) {
+		if (car(list)===a) return rember1cc(a,cdr(list))
+		else return cons(car(list),rember1cc(a,cdr(list)))
+	}
+	else {
+		var rema = rember1cc(a,car(list))
+		if (isAtom(rema)) return cons(car(list),rember1cc(a,cdr(list)))
+		else return cons(rema,cdr(list))
+	}
+}
 
+function callcc (f,cc) { 
+  /* senza return!?!? */ f(function(x,k) { cc(x) },cc)
+}
 
+function skip(x){return 'CCC'+x}
 
+function leftmostXX(l) {return callcc(lm(l,skip),skip)}
 
+function lm(list, out){
+	if (isEmpty(list)) return EMPTY
+	else if (isAtom(car(list))) out(car(list))
+	else {
+		var lma = lm(car(list),out)
+		if (lma!==undefined) lm(cdr(list),out)
+	}
+}
 
+/*
+
+(define leftmost
+	(lambda(l)
+		(letcc skip (lm l skip)
+	)	
+)
+
+(define lm
+	(lambda(l out)
+		(cond
+			((null? l)(quote()))
+			((atom? (car l))(out (car l)))
+			(else
+				(cond
+					((atom? (lm (car l) out)) (lm (car l) out))
+					(else (lm (cdr l) out))
+				)
+			)
+		)
+		
+	)
+)
+*/
 
 
 

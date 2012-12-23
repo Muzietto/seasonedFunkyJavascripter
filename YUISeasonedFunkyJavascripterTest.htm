@@ -17,18 +17,31 @@
 		</style>
 		<!-- Required END-->
 		
-		<!-- jQuery stuff BEGIN -->
-		<!-- jQuery stuff END -->
+		<!-- jQuery/Yahoo stuff BEGIN -->
+		<script type="text/javascript">
+		YAHOO.namespace('SFJ.test');
+		var Assert = YAHOO.util.Assert;
+		if (!YAHOO.SFJ.test.SFJ_TestSuite) 
+			YAHOO.SFJ.test.SFJ_TestSuite = new YAHOO.tool.TestSuite("YUI Test Suite for Seasoned Funky Javascripter");
+		</script>
+		<!-- jQuery/Yahoo stuff END -->
 		
 		<!-- Code Under Testing -->
 		<script type="text/javascript" src="../geieslists/geieslists_1.0.js"></script>
-		<script type="text/javascript" src="../littleFunkyJavascripter/littleFunkyJavascripter_0.1.js"></script>
+		<script type="text/javascript" src="../littleFunkyJavascripter/littleFunkyJavascripter_1.0.js"></script>
 		<script type="text/javascript" src="seasonedFunkyJavascripter_0.1.js"></script>
 		
 		<!-- Test Set -->
 		<script type="text/javascript" src="sfjTests.js"></script>
 		
-		<script>
+		<script type="text/javascript">
+		YAHOO.util.Event.onDOMReady(function() {
+			var logger = new YAHOO.tool.TestLogger("testLogger_SFJ");
+			logger.hideCategory("info");
+			YAHOO.tool.TestRunner
+					.add(YAHOO.SFJ.test.SFJ_TestSuite);
+			YAHOO.tool.TestRunner.run();
+		});
 		</script>
 	</head>
 	<body class="yui-skin-sam">
