@@ -24,110 +24,74 @@ function intersectallUsingLetrec (l_set){
 	else return A(l_set);
 }
 
+// from http://matt.might.net/articles/by-example-continuation-passing-style/
+// (define call/cc (lambda (f cc) (f (lambda (x k) (cc x)) cc)))
+function callcc (f,cc) { 
+  return f(function(x,k) { return cc(x); },cc);
+}
+
+// intersectall + callcc  - not using letcc!!
+function intersectallCc(l_set){
+	return callcc(
+		function (hop){
+			function A(set){
+				if (isEmpty(set)) return hop(EMPTY); 
+				else if (isEmpty(cdr(set))) return car(set);
+				else return intersection(car(set), A(cdr(set)));
+			}
+			return A(l_set)
+		},
+		function(x){return x;}
+	);
+}
+
 // chapter 14
 // leftmost (first version)
 function leftmostFirstVersion(sexp){
-	if (isEmpty(sexp)) return EMPTY
-	else if (isAtom(car(sexp))) return car(sexp)
+	if (isEmpty(sexp)) return EMPTY;
+	else if (isAtom(car(sexp))) return car(sexp);
 	else {
-		var lmcar = leftmostFirstVersion(car(sexp))
-		if (!isEmpty(lmcar)) 
-			return lmcar
-		else return leftmostFirstVersion(cdr(sexp))
+		var lmcar = leftmostFirstVersion(car(sexp));
+		if (!isEmpty(lmcar)) return lmcar;
+		else return leftmostFirstVersion(cdr(sexp));
 	}
 }
 
 // depth + let
 
 
-// leftmost + letcc
-function leftmostContinuation(list){
-	var continuation = function(x) {return x}
-	var leftmost = function(sexp, cc) {
-		if (isEmpty(sexp)) return EMPTY
-		else if (isAtom(car(sexp))) cc('ccc'+car(sexp))
-		else {
-			var lmcar = leftmost(car(sexp),cc)
-			if (!isEmpty(lmcar)) 
-				leftmost(lmcar,cc)
-			else leftmost(cdr(sexp),cc)
-		}
-	}
-	return leftmost(list, function(x) {return x})
+// leftmost + callcc  - not using letcc!!
+function leftmostCc(list){
+	return callcc(
+		function(hop) {
+			function lm(sexp){
+				if (isEmpty(sexp)) return EMPTY;
+				else if (isAtom(car(sexp))) return hop('CCC'+car(sexp));
+				else {
+					var lmcar = lm(car(sexp));
+					if (!isEmpty(lmcar)) return lmcar;
+					else return lm(cdr(sexp));
+				}
+			}
+			return lm(list);
+		},
+		function(x) {return x;}
+	);
 }
 
 // rember1 (pag. 67)
-function rember1(a, list){
+function rember1Star(a, list){
 	if (isEmpty(list)) return EMPTY
 	else if (isAtom(car(list))) {
-		if (car(list)===a) return rember1(a,cdr(list))
-		else return cons(car(list),rember1(a,cdr(list)))
+		if (car(list)===a) return rember1Star(a,cdr(list))
+		else return cons(car(list),rember1Star(a,cdr(list)))
 	}
 	else {
-		var rema = rember1(a,car(list))
-		if (eqlist(rema,car(list))) return cons(car(list),rember1(a,cdr(list)))
+		var rema = rember1Star(a,car(list))
+		if (eqlist(rema,car(list))) return cons(car(list),rember1Star(a,cdr(list)))
 		else return cons(rema,cdr(list))
 	}
 }
-
-// rember1 + continuation
-function rember1cc(a, list){
-	var cc = function(x) {return x}
-	
-	if (isEmpty(list)) return continuation('no')
-	else if (isAtom(car(list))) {
-		if (car(list)===a) return rember1cc(a,cdr(list))
-		else return cons(car(list),rember1cc(a,cdr(list)))
-	}
-	else {
-		var rema = rember1cc(a,car(list))
-		if (isAtom(rema)) return cons(car(list),rember1cc(a,cdr(list)))
-		else return cons(rema,cdr(list))
-	}
-}
-
-function callcc (f,cc) { 
-  /* senza return!?!? */ f(function(x,k) { cc(x) },cc)
-}
-
-function skip(x){return 'CCC'+x}
-
-function leftmostXX(l) {return callcc(lm(l,skip),skip)}
-
-function lm(list, out){
-	if (isEmpty(list)) return EMPTY
-	else if (isAtom(car(list))) out(car(list))
-	else {
-		var lma = lm(car(list),out)
-		if (lma!==undefined) lm(cdr(list),out)
-	}
-}
-
-/*
-
-(define leftmost
-	(lambda(l)
-		(letcc skip (lm l skip)
-	)	
-)
-
-(define lm
-	(lambda(l out)
-		(cond
-			((null? l)(quote()))
-			((atom? (car l))(out (car l)))
-			(else
-				(cond
-					((atom? (lm (car l) out)) (lm (car l) out))
-					(else (lm (cdr l) out))
-				)
-			)
-		)
-		
-	)
-)
-*/
-
 
 
 
