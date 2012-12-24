@@ -79,11 +79,26 @@ function leftmostCc(list){
 	);
 }
 
+// leftmost with try-catch (will it be faster than leftmostCc ? see it at http://jsperf.com/leftmost-with-continuation/3)
+function leftmostTryCatch(sexp){
+	try{
+		if (isEmpty(sexp)) return EMPTY;
+		else if (isAtom(car(sexp))) throw car(sexp);
+		else {
+			var lmcar = leftmostFirstVersion(car(sexp));
+			if (!isEmpty(lmcar)) return lmcar;
+			else return leftmostFirstVersion(cdr(sexp));
+		}
+	} catch (carsexp) {
+		return 'CCC' + carsexp;
+	}
+}
+
 // rember1 (pag. 67)
 function rember1Star(a, list){
 	if (isEmpty(list)) return EMPTY
 	else if (isAtom(car(list))) {
-		if (car(list)===a) return rember1Star(a,cdr(list))
+		if (car(list)===a) return cdr(list)
 		else return cons(car(list),rember1Star(a,cdr(list)))
 	}
 	else {
@@ -92,6 +107,37 @@ function rember1Star(a, list){
 		else return cons(rema,cdr(list))
 	}
 }
+
+// rember1 + callcc - not using letcc!!!
+function rember1cc(a, list){
+	return callcc(
+		function (oh){
+			function rr(list){
+				if (isEmpty(list)) { 
+					return oh('NO');
+				}
+				else if (isAtom(car(list))) {
+					if (car(list)===a) {
+						return cdr(list);
+					}
+					else return cons(car(list),rr(cdr(list)));
+				}
+				else {
+					var rema = rember1cc(a,car(list));
+					if (isAtom(rema)) {
+						return cons(car(list),rr(cdr(list)));
+					}
+					else {
+						return cons(rema,cdr(list));
+					}
+				}
+			}
+			return rr(list);
+		},
+		function(x){return x;}
+	)
+}
+
 
 
 
