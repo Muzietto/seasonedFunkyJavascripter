@@ -90,7 +90,7 @@ function leftmostTryCatch(sexp){
 			else return leftmostFirstVersion(cdr(sexp));
 		}
 	} catch (carsexp) {
-		return 'CCC' + carsexp;
+		return (carsexp);
 	}
 }
 
