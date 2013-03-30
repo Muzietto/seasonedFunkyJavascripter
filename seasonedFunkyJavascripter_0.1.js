@@ -79,7 +79,7 @@ function leftmostCc(list){
 	);
 }
 
-// leftmost with try-catch (will it be faster than leftmostCc ? see it at http://jsperf.com/leftmost-with-continuation/3)
+// leftmost with try-catch (will it be faster than leftmostCc ? see it at http://jsperf.com/leftmost-with-continuation/)
 function leftmostTryCatch(sexp){
 	try{
 		if (isEmpty(sexp)) return EMPTY;
