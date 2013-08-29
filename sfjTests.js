@@ -1,7 +1,14 @@
-(function(ts){
-/* a few implementations from the Seasoned Schemer
+/*
+	SeasonedFunkyJavascripter - a few implementations from the Seasoned Schemer
+	Author: Marco Faustinelli (contacts@faustinelli.net)
+	Web: http://faustinelli.net/
+	     http://faustinelli.wordpress.com/
+	Version: 1.0
+
+	The MIT License - Copyright (c) 2013 SeasonedFunkyJavascripter Project
 */
 
+(function(ts){
 // chapter 11
 ts.add(new YAHOO.tool.TestCase({
 	name : "TestScramble",
